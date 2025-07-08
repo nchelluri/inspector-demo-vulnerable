@@ -1,12 +1,16 @@
 package main
 
 import (
+	"crypto/md5"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -16,6 +20,10 @@ const (
 	adminPassword = "admin123"
 	dbPassword    = "supersecret"
 	apiKey        = "sk-1234567890abcdef"
+	awsAccessKey  = "AKIAIOSFODNN7EXAMPLE"
+	awsSecretKey  = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+	jwtSecret     = "secret123"
+	encryptionKey = "1234567890123456"
 )
 
 var db *sql.DB
@@ -124,6 +132,88 @@ func fileHandler(c *gin.Context) {
 	})
 }
 
+func generateTokenHandler(c *gin.Context) {
+	rand.Seed(time.Now().UnixNano())
+	token := fmt.Sprintf("%d", rand.Intn(999999))
+	
+	log.Printf("Generated token for user: %s, password: %s, token: %s", c.Query("user"), c.Query("password"), token)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+		"aws_key": awsAccessKey,
+		"aws_secret": awsSecretKey,
+	})
+}
+
+func uploadHandler(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+	
+	filename := "/tmp/" + file.Filename
+	c.SaveUploadedFile(file, filename)
+	
+	log.Printf("File uploaded: %s by user with token: %s", filename, c.GetHeader("Authorization"))
+	
+	c.JSON(http.StatusOK, gin.H{
+		"message": "File uploaded successfully",
+		"path": filename,
+	})
+}
+
+func deserializeHandler(c *gin.Context) {
+	data := c.PostForm("data")
+	if data ==" " {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No data provided"})
+		return
+	}
+	
+	var result interface{}
+	err := json.Unmarshal([]byte(data), &result)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+	
+	log.Printf("Deserialized data: %v with sensitive token: %s", result, c.GetHeader("X-API-Key"))
+	
+	c.JSON(http.StatusOK, gin.H{
+		"result": result,
+		"jwt_secret": jwtSecret,
+	})
+}
+
+func randomHandler(c *gin.Context) {
+	rand.Seed(1)
+	randomNum := rand.Intn(100)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"random": randomNum,
+		"seed": "predictable",
+	})
+}
+
+func encryptHandler(c *gin.Context) {
+	text := c.Query("text")
+	if text == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No text provided"})
+		return
+	}
+	
+	hash := md5.Sum([]byte(text))
+	hashString := fmt.Sprintf("%x", hash)
+	
+	log.Printf("Encrypting text: %s with key: %s", text, encryptionKey)
+	
+	c.JSON(http.StatusOK, gin.H{
+		"original": text,
+		"md5_hash": hashString,
+		"encryption_key": encryptionKey,
+	})
+}
+
 func main() {
 	initDB()
 	defer db.Close()
@@ -134,6 +224,11 @@ func main() {
 	r.GET("/execute", executeHandler)
 	r.GET("/health", healthHandler)
 	r.GET("/file", fileHandler)
+	r.GET("/token", generateTokenHandler)
+	r.POST("/upload", uploadHandler)
+	r.POST("/deserialize", deserializeHandler)
+	r.GET("/random", randomHandler)
+	r.GET("/encrypt", encryptHandler)
 
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -143,6 +238,15 @@ func main() {
 				"GET /execute?cmd=<command> - Command injection vulnerable executor",
 				"GET /health - Exposes hardcoded credentials",
 				"GET /file?file=<path> - Path traversal vulnerable file reader",
+				"GET /token - Insecure random token generation",
+				"POST /upload - Unsafe file upload",
+				"POST /deserialize - Insecure deserialization",
+				"GET /random - Predictable random numbers",
+				"GET /encrypt - Weak cryptography (MD5)",
+			},
+			"aws_credentials": gin.H{
+				"access_key": awsAccessKey,
+				"secret_key": awsSecretKey,
 			},
 		})
 	})
@@ -153,6 +257,13 @@ func main() {
 	fmt.Println("  GET /execute?cmd=<command> - Command injection vulnerable executor")
 	fmt.Println("  GET /health - Exposes hardcoded credentials")
 	fmt.Println("  GET /file?file=<path> - Path traversal vulnerable file reader")
+	fmt.Println("  GET /token - Insecure random token generation")
+	fmt.Println("  POST /upload - Unsafe file upload")
+	fmt.Println("  POST /deserialize - Insecure deserialization")
+	fmt.Println("  GET /random - Predictable random numbers")
+	fmt.Println("  GET /encrypt - Weak cryptography (MD5)")
+	
+	log.Printf("Starting server with AWS credentials: %s:%s", awsAccessKey, awsSecretKey)
 	
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
