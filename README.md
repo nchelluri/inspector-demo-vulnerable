@@ -22,7 +22,7 @@ The following branches will demonstrate various Kusari Inspector use cases.
 
 | Branch | Description
 | ------ | -----------
-| TBD    | Will demonstrate things!
+| python_typosquat    | Typosquatted Python library
 
 ## Contributing
 
