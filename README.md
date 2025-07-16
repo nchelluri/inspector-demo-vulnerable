@@ -22,6 +22,7 @@ The following branches will demonstrate various Kusari Inspector use cases.
 
 | Branch | Description
 | ------ | -----------
+| laravel_api_key     | Find secrets in a Laravel application environment
 | python_maintenance  | Python libraries with non-blocking maintenance issues
 | python_typosquat    | Typosquatted Python library
 | workflow_secrets    | Various problems with GitHub Workflow secret handling
