@@ -3,6 +3,12 @@
 This repo contains example code used to showcase the features of [Kusari Inspector](https://kusari.dev/inspector).
 See instructions below for instructions on self-guided demos.
 
+
+## Public uses of Kusari Inspector
+
+* [Inspector recommends merging](https://github.com/search?q=is%3Apr+commenter%3Akusari-inspector%5Bbot%5D+-org%3Akusaridev+-org%3AKusari-Sandbox+%22%E2%9C%85+PROCEED%22&type=pullrequests&query=is%3Apr+commenter%3Akusari-inspector%5Bbot%5D&s=created&o=desc)
+* [Inspector recommends not merging](https://github.com/search?q=is%3Apr+commenter%3Akusari-inspector%5Bbot%5D+-org%3Akusaridev+-org%3AKusari-Sandbox+%22DO+NOT+PROCEED%22&type=pullrequests&query=is%3Apr+commenter%3Akusari-inspector%5Bbot%5D&s=created&o=desc)
+
 ## Self-guided demos
 
 To try Kusari Inspector on this repository:
