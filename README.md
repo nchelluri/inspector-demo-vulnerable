@@ -11,16 +11,17 @@ See instructions below for instructions on self-guided demos.
 
 ## Self-guided demos
 
-To try Kusari Inspector on this repository:
+To try Kusari Inspector:
 
-1. [Fork this repo](https://github.com/Kusari-Sandbox/inspector-demo-vulnerable/fork) to your personal namespace and *uncheck the "Copy the `main` branch only" box*!
+1. [Create a new repo from this template](https://github.com/new?template_name=inspector-demo-vulnerable&template_owner=Kusari-Sandbox)
+   - **Check the "Include all branches" box**
+   - Select the namespace for the new repo
+   - Add a name for the new repo
 2. [Install Kusari Inspector](https://github.com/apps/kusari-inspector) to your new repo
 3. Open a pull request to merge one of the branches below into `main`.
 4. In a few seconds, you'll see what Kusari Inspector says!
 
 You can also modify the code in the repo to try other variations.
-
-*Please submit your pull requests to your own repo's `main` branch.*
 
 ## Demo branches
 
