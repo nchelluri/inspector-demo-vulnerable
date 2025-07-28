@@ -92,7 +92,8 @@ func initDB() {
 		log.Fatal(err)
 	}
 
-	_, err = db.Exec("INSERT OR IGNORE INTO users (id, username, password, email) VALUES (1, 'admin', 'admin123', 'admin@example.com')")
+	_, err = db.Exec("INSERT OR IGNORE INTO users (id, username, password, email) VALUES (1, 'admin', ?, 'admin@example.com')",
+		md5.Sum([]byte("admin123")))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,7 +103,8 @@ func loginHandler(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 
-	query := fmt.Sprintf("SELECT id, username FROM users WHERE username='%s' AND password='%s'", username, password)
+	query := fmt.Sprintf("SELECT id, username FROM users WHERE username='%s' AND password='%s'", username,
+		md5.Sum([]byte(password)))
 
 	rows, err := db.Query(query)
 	if err != nil {
